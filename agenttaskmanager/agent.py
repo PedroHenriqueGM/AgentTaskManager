@@ -203,7 +203,7 @@ def remover_tarefa(nome_da_task: str, confirmacao: str = "não") -> str:
         return f"❌ Erro ao remover tarefa: {str(e)}"
 
 root_agent = Agent(
-    model='gemini-3.8-flash',
+    model='gemini-3.5-flash-lite',
     name='root_agent',
     description='Agente de Organização de Tarefas',
     instruction="""
