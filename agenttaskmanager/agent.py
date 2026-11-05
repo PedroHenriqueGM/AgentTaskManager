@@ -28,7 +28,7 @@ def adicionar_tarefa(nome_da_task: str, descricao_da_task: str, due_date: str):
     client.list_boards()
     # Obter o board (você precisa do ID ou nome do board)
     boards = client.list_boards()
-    meu_board = [b for b in boards if b.name == 'DIO'][0]
+    meu_board = [b for b in boards if b.name == 'ProjetoBootcamp'][0]
 
     # Obter a lista onde quer adicionar o card
     listas = meu_board.list_lists()
@@ -50,7 +50,7 @@ def listar_tarefas(status: str = "todas"):
     )
 
     boards = client.list_boards()
-    meu_board = [b for b in boards if b.name == 'DIO'][0]
+    meu_board = [b for b in boards if b.name == 'ProjetoBootcamp'][0]
     listas = meu_board.list_lists()        
 
     if status.lower() == "todas":
@@ -88,7 +88,7 @@ def mudar_status_tarefa(nome_da_task: str, novo_status: str) -> str:
         )
 
         boards = client.list_boards()
-        meu_board = [b for b in boards if b.name == 'DIO'][0]
+        meu_board = [b for b in boards if b.name == 'ProjetoBootcamp'][0]
         listas = meu_board.list_lists()
                        
         # Mapear status para listas
