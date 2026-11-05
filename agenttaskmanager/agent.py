@@ -135,6 +135,73 @@ def mudar_status_tarefa(nome_da_task: str, novo_status: str) -> str:
     except Exception as e:
         return f"❌ Erro: {str(e)}"
 
+def remover_tarefa(nome_da_task: str, confirmacao: str = "não") -> str:
+    """
+    Remove uma tarefa do Trello pelo nome.
+    Exige confirmação explícita antes de excluir o cartão.
+    """
+    try:
+        client = TrelloClient(
+            api_key=API_KEY,
+            api_secret=API_SECRET,
+            token=TOKEN
+        )
+
+        # Localizar o quadro
+        boards = client.list_boards()
+        meu_board = next(
+            (b for b in boards if b.name.lower() == 'projetobootcamp'),
+            None
+        )
+
+        if not meu_board:
+            return "❌ Quadro 'projetobootcamp' não encontrado."
+
+        # Procurar a tarefa em todas as listas
+        listas = meu_board.list_lists()
+        tarefas_encontradas = []
+
+        for lista in listas:
+            cards = lista.list_cards()
+
+            for card in cards:
+                if card.name.strip().lower() == nome_da_task.strip().lower():
+                    tarefas_encontradas.append((card, lista))
+
+        # Verificar se a tarefa existe
+        if not tarefas_encontradas:
+            return f"❌ Tarefa '{nome_da_task}' não encontrada."
+
+        # Evitar excluir tarefas com nomes iguais
+        if len(tarefas_encontradas) > 1:
+            locais = [
+                f"'{card.name}' na lista '{lista.name}'"
+                for card, lista in tarefas_encontradas
+            ]
+            return (
+                "⚠️ Encontrei mais de uma tarefa com esse nome: "
+                + ", ".join(locais)
+                + ". Informe qual delas deseja remover."
+            )
+
+        card, lista = tarefas_encontradas[0]
+
+        # Solicitar confirmação antes de excluir
+        if confirmacao.strip().lower() != "sim":
+            return (
+                f"⚠️ Você deseja realmente excluir a tarefa "
+                f"'{card.name}' da lista '{lista.name}'? "
+                "Responda sim ou não."
+            )
+
+        # Excluir o cartão
+        card.delete()
+
+        return f"✅ Tarefa '{card.name}' removida com sucesso!"
+
+    except Exception as e:
+        return f"❌ Erro ao remover tarefa: {str(e)}"
+
 root_agent = Agent(
     model='gemini-3.8-flash',
     name='root_agent',
@@ -154,5 +221,5 @@ root_agent = Agent(
           5. Mudar o status da tarefa (ex: de "A Fazer" para "Em Andamento" e de "Em Andamento" para "Concluído")
           6. Gerar contexto temporal (data e hora atual) para organizar as tarefas do dia
 """,
-    tools=[get_temporal_context, adicionar_tarefa, listar_tarefas, mudar_status_tarefa],
+    tools=[get_temporal_context, adicionar_tarefa, listar_tarefas, mudar_status_tarefa, remover_tarefa],
 )
